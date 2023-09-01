@@ -29,7 +29,7 @@ loadpathsloc = fullfile(mohawkpath,'loadpaths.m');
 %
 data_wd = pwd;
 sess = ls('Sess*');
-filepath = fullfile(data_wd,sess(sessi,:));
+filepath = data_wd;
 for sessi = 1:2
     cd(fullfile(data_wd,sess(sessi,:)))
     [filename,filepath] = uigetfile('*.vhdr','Select file to homogenize',filepath);
@@ -58,7 +58,9 @@ for sessi = 1:2
             % Add
 	    % If some events are forgotten, then here we put them. I.e., we forgot to put the event for the end of SECONDs at 30,
             % right before we increase Concentration to 0.6
-            num = 12; % New event, number to be changed 
+            num = size(EEG.event,2); % Counter for new events
+            
+            num = num +1;% New event, number to be changed 
             temp = struct('type',{'SEC30E'},'value',{'Comment'},'latency',...
                 {(EEG.event(5).latency -1)},'duration',{1});
             EEG.urevent(num) = temp; temp.urevent = num; temp.duration= 0.5; EEG.event(num) = temp;

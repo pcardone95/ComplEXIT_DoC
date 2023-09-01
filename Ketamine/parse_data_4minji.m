@@ -106,7 +106,7 @@ for pati = 1%1:size(fold_pat,1) % Microsoft
                 EEG_temp.nbchan = EEG_temp.nbchan + length(eximia_addchn);
                 %
                 % Interpolate
-                EEG_temp = EEG_temp_interp(EEG_temp, 128:EEG_temp.nbchan);
+                EEG_temp = eeg_interp(EEG_temp, 128:EEG_temp.nbchan);
                 
                 EEG_temp = pop_select(EEG_temp, 'channel', [channels_ECI 128:132]);
                 pop_saveset(EEG_temp,'filepath',fullfile(minji_wd, fold_pat(pati,:),sess(sessi,:)),...

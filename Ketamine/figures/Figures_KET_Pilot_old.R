@@ -48,7 +48,7 @@ res.aov_LZC <- data_summarize %>% as.data.frame() %>% anova_test(dv = mean_LZC, 
 get_anova_table(res.aov_LZC)
 
 # Standard error - Per sub
-subject = 'KET03'
+subject = 'KET01'
 data_summarize %>% filter(Subject== subject) %>% 
   ggplot(aes(x=Concentration, y=mean_LZC, shape=Condition, color=Condition,
                                                             group =interaction(Condition, Subject)))+
@@ -83,6 +83,35 @@ data_summarize %>% ggplot(aes(x=Concentration, y=mean_LZC, shape=Condition, colo
   geom_errorbar(aes(ymin=mean_LZC-sd_LZC, ymax=mean_LZC+sd_LZC), width=.2) + 
   ylab('LZC') + theme_bw() + theme(text = element_text(size = 20))
 
+# Version 2 - dated 30/08/2023
+data <- read.csv('pilotKET_merged_R_V2_all.txt', header = TRUE, sep = ',')
+data[c('Subject', 'Electrode', 'Concentration', 'Session', 'Condition')] <- 
+  lapply(data[c('Subject', 'Electrode', 'Concentration', 'Session', 'Condition')],as.factor)
+levels(data$Subject) <- c('MCS-','UWS', 'MCS+')
+
+data_summarize <-data %>%
+  group_by(Subject, Condition) %>%
+  summarise(mean_LZC = mean(LZC), sd_LZC = sd(LZC))
+#SD or SE
+data_summarize %>% ggplot(aes(x=factor(Condition, level=c('Placebo', 'Ketamine')), y=mean_LZC, color=Subject,
+                              group =interaction(Condition, Subject)))+
+  geom_point(size=5)+ geom_line(aes(group =Subject)) +
+  geom_errorbar(aes(ymin=mean_LZC-sd_LZC/sqrt(127), ymax=mean_LZC+sd_LZC/sqrt(127)), width=.2) + 
+  #geom_errorbar(aes(ymin=mean_LZC-sd_LZC, ymax=mean_LZC+sd_LZC), width=.2) + 
+  xlab('') + ylab('Lempel-Ziv complexity') + theme_bw() + theme(text = element_text(size = 20))
+
+ggsave("KET_LZC_alltrials_August2023_se.tiff", device="tiff", width=16, height=10, units="cm", path=paper_path, dpi=300)
+
+# Channel-wise
+LZC_graph <- data %>% 
+  ggplot(aes(x=factor(Condition, level=c('Placebo', 'Ketamine')), y=LZC, 
+             color=Subject, group =interaction(Condition, Electrode)))+
+  geom_point(size=3)+ geom_line(aes(group = Electrode)) +
+  ylab('Lempel-Ziv complexity') +xlab('')+ theme_bw() + 
+  theme(text = element_text(size =10))+ 
+  scale_y_continuous(limits = c(0.15, 0.61))
+LZC_graph + facet_grid( .~ Subject )
+ggsave("KET_LZC_alltrials_August2023_channelwise.tiff", device="tiff", width=16, height=10, units="cm", path=paper_path, dpi=300)
 
 
 # 2.1 Alpha centrality ########
@@ -211,8 +240,9 @@ MAS_graph <- data_MAS %>%
   
 #MAS_graph + facet_grid(Subject ~ Side)
 
-MAS_graph + facet_nested(Subject ~ Side + Condition)
-ggsave("KET_MASS.tiff", device="tiff", width=30, height=20, units="cm", path=paper_path, dpi=300)
+#MAS_graph + facet_nested(Subject ~ Side + Condition)
+MAS_graph + facet_nested(Condition ~ Subject + Side )
+ggsave("KET_MASS_v2.tiff", device="tiff", width=30, height=20, units="cm", path=paper_path, dpi=300)
 #MAS_graph + facet_nested(Subject ~ Limb + Side)
 
 # Version 2 of figure
