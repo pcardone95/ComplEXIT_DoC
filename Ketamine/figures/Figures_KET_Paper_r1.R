@@ -19,7 +19,7 @@ library(ggpubr)
 library(rstatix)
 
 # Set path and file_name
-paper_path <- "C:/Users/Paolo/dox/PhD/00_Publications/Papers/Mine/2023/Pilot_KET/NEJM_RapidReport/results"
+paper_path <- "C:/Users/Paolo/dox/PhD/00_Publications/Papers/Mine/Pilot_KET/results"
 data_LZC_allcon_path <- 'pilotKET_merged_R_V3_all.txt'
 data_PerCon_path <- 'pilotKET_merged_R_V4_PerConc.txt'
 data_alpha_path <-  'pilotKET_merged_R_alpha_v4.txt'
@@ -31,26 +31,20 @@ setwd("C:/Users/Paolo/OneDrive - Universite de Liege/Bureau/OldComputer/D/Comple
 data_LZC_allcon <- read.csv(data_LZC_allcon_path, header = TRUE, sep = ',')
 data_LZC_allcon[c('Subject', 'Electrode', 'Concentration', 'Session', 'Condition')] <- 
   lapply(data_LZC_allcon[c('Subject', 'Electrode', 'Concentration', 'Session', 'Condition')],as.factor)
-levels(data_LZC_allcon$Subject) <- c('MCS-','UWS', 'MCS+')
-data_LZC_allcon$Subject <- factor(data_LZC_allcon$Subject, levels =  c('UWS','MCS-','MCS+'))
+levels(data_LZC_allcon$Subject) <- c('Case 2','Case 1', 'Case 3')
+data_LZC_allcon$Subject <- factor(data_LZC_allcon$Subject, levels =  c('Case 1','Case 2', 'Case 3'))
 
-# 2.1 Whole-brain LZC - All trials - t-test ####
+# 2.1 Whole-brain LZC - All trials s - Figure ####
 data_LZC_allcon_summarize <-data_LZC_allcon %>%
   group_by(Subject, Condition) %>%
   summarise(mean_LZC = mean(LZC), sd_LZC = sd(LZC))
 
-# t-test
-t.test(x = pull(data_LZC_allcon_summarize[data_LZC_allcon_summarize['Condition'] == 'Ketamine',3]),
-       y = pull(data_LZC_allcon_summarize[data_LZC_allcon_summarize['Condition'] == 'Placebo',3]),
-             paired = TRUE)
-
-# 2.2 Whole-brain LZC - All trials - Figure ####
 LZC_graph_grid <- data_LZC_allcon_summarize %>% ggplot(aes(x=factor(Condition, level=c('Placebo', 'Ketamine')), y=mean_LZC, color=Condition,
                                                            shape=Subject, group =interaction(Condition, Subject)))+
   geom_point(aes(fill=Condition), size=5)+ geom_line(aes(group =Subject), color = 'black') +
   geom_errorbar(aes(ymin=mean_LZC-sd_LZC/sqrt(127), ymax=mean_LZC+sd_LZC/sqrt(127)), width=.2) + 
   xlab('') + ylab('') + ggtitle('LZC')+ theme_bw() + theme(text = element_text(size = 20)) +
-  scale_shape_manual(values=c(24,22,23),breaks=c('UWS','MCS-','MCS+')) + guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session")) + theme(legend.position='none', plot.title = element_text(hjust = 0.5))
+  scale_shape_manual(values=c(24,22,23),breaks=c('Case 1','Case 2','Case 3')) + guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session")) + theme(legend.position='none', plot.title = element_text(hjust = 0.5))
 
 # 2.3  Whole-brain LZC - Per concentrations - ANOVA #### 
 data_PerCon <- read.csv(data_PerCon_path, header = TRUE, sep = ',')
@@ -61,14 +55,10 @@ data_PerCon_summarize <-data_PerCon %>%
   group_by(Subject, Condition, Concentration) %>%
   summarise(mean_LZC = mean(LZC), sd_LZC = sd(LZC))
 
-# ANOVA
-res.aov_LZC <- data_PerCon_summarize %>% as.data.frame() %>% anova_test(dv = mean_LZC, wid = Subject, within = c(Concentration, Condition))
-get_anova_table(res.aov_LZC)
-
 # 2.3  Whole-brain LZC - Per concentrations - Figure #### 
 data_PerCon_summarize$Subject <- as.factor(data_PerCon_summarize$Subject)
-levels(data_PerCon_summarize$Subject) <- c('MCS-','UWS','MCS+')
-data_PerCon_summarize$Subject <- factor(data_PerCon_summarize$Subject, levels =  c('UWS','MCS-','MCS+'))
+levels(data_PerCon_summarize$Subject) <- c('Case 2','Case 1', 'Case 3')
+data_PerCon_summarize$Subject <- factor(data_PerCon_summarize$Subject, levels =  c('Case 1','Case 2','Case 3'))
 
 LZC_graph_summary <- data_PerCon_summarize %>% 
   ggplot(aes(x=Concentration, y=mean_LZC,  color=Condition,
@@ -79,7 +69,7 @@ LZC_graph_summary <- data_PerCon_summarize %>%
   theme(text = element_text(size =10))+ 
   scale_y_continuous(limits = c(0.18, 0.59)) + geom_vline(xintercept = 1.5, linetype="dashed", 
                                                         color = "black", size=1)
-LZC_graph_summary_grid <- LZC_graph_summary + facet_grid( .~ Subject ) + theme(legend.position='none', text = element_text(size = 15),
+LZC_graph_summary  <- LZC_graph_summary + facet_grid( .~ Subject ) + theme(legend.position='none', text = element_text(size = 15),
                                                                                axis.text.x = element_text(size=8, angle = 45))+ 
   guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session"))
 
@@ -87,22 +77,11 @@ LZC_graph_summary_grid <- LZC_graph_summary + facet_grid( .~ Subject ) + theme(l
 data_ECI <- read.csv(data_ECI_path, header = TRUE, sep = ',')
 data_ECI$Session <- as.factor(data_ECI$Session )
 data_ECI$Subject <- as.factor(data_ECI$Subject )
-levels(data_ECI$Subject) <- c('MCS-','UWS', 'MCS+')
-data_ECI$Subject <- factor(data_ECI$Subject, levels =  c('UWS','MCS-','MCS+'))
+levels(data_ECI$Subject) <- c('Case 2','Case 1', 'Case 3')
+data_ECI$Subject <- factor(data_ECI$Subject, levels =   c('Case 1','Case 2', 'Case 3'))
 
 
-# 3.1 ECI - All trials - t-test ####
-# t-test ECI_aro
-t.test(x = (data_ECI[data_ECI['Concentration'] == 'All' & data_ECI['Condition'] == 'Ketamine',5]),
-       y = (data_ECI[data_ECI['Concentration'] == 'All' & data_ECI['Condition'] == 'Placebo',5]),
-       paired = TRUE)
-
-# t-test ECI_awa
-t.test(x = (data_ECI[data_ECI['Concentration'] == 'All' & data_ECI['Condition'] == 'Ketamine',6]),
-       y = (data_ECI[data_ECI['Concentration'] == 'All' & data_ECI['Condition'] == 'Placebo',6]),
-       paired = TRUE)
-
-# 3.2 ECI - All trials - Figure ####
+# 3.1 ECI - All trials - Figure ####
 data_ECIAr_grid <- data_ECI %>% filter(Concentration == "All") %>% ggplot(aes(x=factor(Condition, level=c('Placebo', 'Ketamine')), y=ECI_Aro, 
                                                            color=Condition,
                                                            shape=Subject, group =interaction(Condition, Subject)))+
@@ -110,7 +89,7 @@ data_ECIAr_grid <- data_ECI %>% filter(Concentration == "All") %>% ggplot(aes(x=
   xlab('') + ylab('') + ggtitle('ECI Arousal') +theme_bw() + theme(text = element_text(size = 20))+
   ylim(c(0,1)) +  geom_hline(yintercept = 0.5, linetype="dashed", color = "red",  size=1) +
   theme(legend.position = 'none', plot.title = element_text(hjust = 0.5))+
-  scale_shape_manual(values=c(24,22,23),breaks=c('UWS','MCS-','MCS+'))+ guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session"))#+scale_colour_manual(values = c("blue3", "chartreuse4", "chocolate4"))
+  scale_shape_manual(values=c(24,22,23),breaks=c('Case 1','Case 2', 'Case 3'))+ guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session"))#+scale_colour_manual(values = c("blue3", "chartreuse4", "chocolate4"))
 
 # Awa ##
 data_ECIAw_grid <- data_ECI %>% filter(Concentration == "All") %>% ggplot(aes(x=factor(Condition, level=c('Placebo', 'Ketamine')), y=ECI_Awa,
@@ -120,16 +99,8 @@ data_ECIAw_grid <- data_ECI %>% filter(Concentration == "All") %>% ggplot(aes(x=
   xlab('') + ylab('') + ggtitle('ECI Awareness') +theme_bw() + theme(text = element_text(size = 20))+
   ylim(c(0,1)) +  geom_hline(yintercept = 0.5, linetype="dashed", color = "red",  size=1) +
   theme(legend.position = 'none', plot.title = element_text(hjust = 0.5))+
-  scale_shape_manual(values=c(24,22,23),breaks=c('UWS','MCS-','MCS+'))+ guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session"))#+scale_colour_manual(values = c("blue3", "chartreuse4", "chocolate4"))
+  scale_shape_manual(values=c(24,22,23),breaks= c('Case 1','Case 2', 'Case 3'))+ guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session"))#+scale_colour_manual(values = c("blue3", "chartreuse4", "chocolate4"))
 
-# 3.3 ECI - Per concentration- ANOVA ####
-# ECI Aro
-res.aov_ECIAro <- data_ECI %>% filter(Concentration != 0)%>% filter(Concentration != 'All') %>% anova_test(dv = ECI_Aro, wid = Subject, within = c(Concentration, Condition))
-get_anova_table(res.aov_ECIAro)
-
-# ECI Awa
-res.aov_ECIAwa <- data_ECI %>% filter(Concentration != 0)%>% filter(Concentration != 'All') %>% anova_test(dv = ECI_Awa, wid = Subject, within = c(Concentration, Condition))
-get_anova_table(res.aov_ECIAwa)
 
 # 3.4 ECI - Per concentration- Figure ####
 ECI_aro_graph <- data_ECI %>% filter(Concentration != 'All') %>% #filter(Concentration != '0')%>% 
@@ -160,9 +131,10 @@ ECI_awa_graph_grid <- ECI_awa_graph + facet_grid( .~ Subject ) + theme(legend.po
 # 4. Figure 3 - EEG results####
 ggarrange(LZC_graph_grid, data_ECIAr_grid, data_ECIAw_grid, 
           LZC_graph_summary_grid, ECI_aro_graph_grid, ECI_awa_graph_grid, 
-          nrow = 2, ncol = 3,  labels = c('a', 'b', 'c'), font.label = list(size = 28),  
+          nrow = 2, ncol = 3,  labels = c('A', 'B', 'C'), font.label = list(size = 28),  
           common.legend = TRUE, legend = "right")
-ggsave("PaperKET_EEGresults_NatMed.tiff", device="tiff", width=15, height=8.25, units="in", path=paper_path, dpi=300)
+ggsave("PaperKET_EEGresults_iScience_r1.tiff", device="tiff", width=15, height=8.25, units="in", path=paper_path, dpi=300)
+ggsave("PaperKET_EEGresults_iScience_r1.jpg", device="jpg", width=15, height=8.25, units="in", path=paper_path, dpi=300)
 
 
 
@@ -176,14 +148,6 @@ data_seconds[c('Condition', 'Time', 'Diagnosis')] <-
 data_seconds$Time <- ordered(data_seconds$Time, levels = c("0", "30", "60", "90", "120")) 
 levels(data_seconds$Time) <- c("0", "30", "60", "90", "210")
 
-# 5.1 SECONDs - ANOVA ####
-res.aov_SECONDs <- anova_test(data = data_seconds, dv = Index, wid = Subject, within = c(Time,Condition))
-get_anova_table(res.aov_SECONDs)
-#With good timepoints?
-res.aov_SECONDs <- data_seconds%>% filter(Time != "0") %>% filter(Time != "210") %>%
-  anova_test(dv = Index, wid = Subject, within = c(Time,Condition))
-get_anova_table(res.aov_SECONDs)
-
 # 5.1 SECONDs - FIGURE ####
 #Change for visual representation
 temp1 <- data_seconds %>% filter(Condition == "Placebo") %>% mutate(Index = Index -0.1)
@@ -191,8 +155,8 @@ temp2 <- data_seconds %>% filter(Condition == "Ketamine") %>% mutate(Index = Ind
 data_seconds <- rbind(temp1, temp2)
 
 data_seconds$Subject <- as.factor(data_seconds$Subject)
-levels(data_seconds$Subject) <- c('MCS-','UWS','MCS+')
-data_seconds$Subject <- factor(data_seconds$Subject, levels =  c('UWS','MCS-','MCS+'))
+levels(data_seconds$Subject) <- c('Case 2','Case 1','Case 3')
+data_seconds$Subject <- factor(data_seconds$Subject, levels =  c('Case 1', 'Case 2', 'Case 3'))
 
 seconds_graph_v2 <- data_seconds %>% ggplot(aes(x=Time, y=Index, shape=Diagnosis, color=Condition,
                                              group =interaction(Condition, Subject)))+
@@ -212,8 +176,6 @@ seconds_graph_grid <- seconds_graph_grid +
                         c(".75", ".75", " "), rep(c("0", ".45", ".75", ".75", "0"), times=3))), 
             color='black', fontface = "bold", size = 3)
 
-# seconds_graph_grid <- seconds_graph_grid + 
-#   xlab(bquote('Concentration ' (µg~mL^-1))) + scale_x_discrete(labels = c("0", "0.45", "0.75", "0.75", "0"))
 
 # 7. Eyes Opened - Figure ####
 data_aro <- read_excel("20231117_Arousal_R.xlsx", 
@@ -229,7 +191,8 @@ temp2 <- data_aro %>% filter(Session == "Ketamine") %>% mutate(Index = Index +0.
 data_aro <- rbind(temp1, temp2)
 
 data_aro$Subject <- as.factor(data_aro$Subject)
-data_aro$Subject <- factor(data_aro$Subject, levels =  c('UWS','MCS-','MCS+'))
+levels(data_aro$Subject) <- c('Case 2','Case 3','Case 1')
+data_aro$Subject <- factor(data_aro$Subject, levels =  c('Case 1', 'Case 2', 'Case 3'))
 
 aro_grid <-data_aro %>% ggplot(aes(x=Time, y=Index, shape=Diagnosis, color=Session,
                                                 group =interaction(Session, Subject)))+
@@ -247,9 +210,6 @@ aro_grid <-data_aro %>% ggplot(aes(x=Time, y=Index, shape=Diagnosis, color=Sessi
   geom_text(aes(label=rep(c("0", ".45", ".75", ".75", "0"), times=6)), 
              color='black', 
             fontface = "bold", size = 3)
-  
-# aro_grid <- aro_grid + xlab(bquote('Concentration ' (µg~mL^-1))) + scale_x_discrete(labels = c("0", "0.45", "0.75", "0.75", "0"))
-#c(rep(c(' '), times=15), rep(c("0", ".45", ".75", ".75", "0"), times=3))),
 
 # 7. MAS - Figure ####
 setwd("C:/Users/Paolo/dox/PhD/01_Psychedelics/Ketamine/Pilot/results/Tables_dataset")
@@ -262,10 +222,10 @@ data_MAS[c('Condition', 'Time', 'Side', 'Limb')] <-
 data_MAS$MAS <- data_MAS$MAS + seq(-0.1, 0.1, length=8)
 
 data_MAS$Subject <- as.factor(data_MAS$Subject)
-levels(data_MAS$Subject) <- c('MCS-','UWS','MCS+')
+levels(data_MAS$Subject) <- c('Case 2','Case 1','Case 3')
 
 ### Figure with no "0" MAS
-data_MAS_mod <- data_MAS %>% filter(Subject!='MCS-')
+data_MAS_mod <- data_MAS %>% filter(Subject!='Case 2')
 data_MAS_mod <- as.data.frame(data_MAS_mod)
 data_MAS_mod <- data_MAS_mod[-c(2, 10, 8, 16, 22, 30, 18, 26, 24, 32),]
 
@@ -283,18 +243,8 @@ MAS_graph_mod_grid <- MAS_graph_mod + theme(legend.position='none', axis.text.y 
   facet_nested(Condition ~ Subject + Side) + scale_y_continuous(minor_breaks = seq(0,5,1),
                                                                 labels = c("0", "1", "1+", "2", "3", "4"))
 
-#MAS_graph_mod_grid <- MAS_graph_mod_grid + 
-#  xlab(bquote('Concentration ' (µg~mL^-1))) + scale_x_discrete(labels = c("0", "0.75"))
 
 # 8. - Figure 2 - Behav results ####
-# ggarrange(seconds_graph_grid, 
-#           aro_grid,
-#           MAS_graph_mod_grid,  
-#           labels = c('A', 'B','C'), font.label = list(size = 30), nrow = 3, 
-#           common.legend = TRUE, legend = "right")
-# 
-# ggsave("PaperKET_Behavresults_temp.tiff", device="tiff", width=14, height=14, units="in", path=paper_path, dpi=300)
-
 ggarrange(
   ggarrange(seconds_graph_grid, 
           aro_grid,
@@ -303,8 +253,8 @@ ggarrange(
   MAS_graph_mod_grid, labels=c('', 'C'), font.label = list(size = 30), nrow = 2,
   heights = c(2,1))
 
-ggsave("PaperKET_Behavresults_NatMed.tiff", device="tiff", width=14, height=17, units="in", path=paper_path, dpi=300)
-ggsave("PaperKET_Behavresults_temp.jpg", device="jpg", width=14, height=17, units="in", path=paper_path, dpi=300)
+ggsave("PaperKET_Behavresults_iScience_r1.tiff", device="tiff", width=14, height=17, units="in", path=paper_path, dpi=300)
+ggsave("PaperKET_Behavresults_iScience_r1.jpg", device="jpg", width=14, height=17, units="in", path=paper_path, dpi=300)
 
 
 # Supplementary material ########

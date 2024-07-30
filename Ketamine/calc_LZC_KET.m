@@ -17,7 +17,7 @@ H = cell(size(EEG.data,1),size( EEG.data,3));
 % Calcule - from Figure 3 (Paper 2)
 for electi = 1:size( EEG.data,1)
     for triali = 1:size( EEG.data,3)
-        data_binar(electi,:,triali) = abs(hilbert( EEG.data(electi,:,triali)));
+        data_binar(electi,:,triali) = abs(hilbert(EEG.data(electi,:,triali)));
         data_binar(electi,:,triali) = ...
             data_binar(electi,:,triali) > mean(data_binar(electi,:,triali));
         strings{electi, triali} = binary_seq_to_string(data_binar(electi,:,triali));
