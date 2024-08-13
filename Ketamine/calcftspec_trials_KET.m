@@ -144,7 +144,7 @@ end
 sgtitle('Placebo normal')
 saveas(gcf,'PlcNorm.png'); saveas(gcf,'PlcNorm.fig')
 
-%% W/ annotations
+%% Spectrogram w/ annotations
 % Set up
 y = [0 45];
 % Ketamine
@@ -346,7 +346,94 @@ text((max(hLF2.XLim)-min(hLF2.XLim))/2+min(hLF2.XLim),max(hLF2.YLim)+3,'Ketamine
 
 %% Changing limits
 cd(filepath_save)
-saveas(gcf,'PowerSpecto.png'); saveas(gcf,'PowerSpect.fig')
+saveas(gcf,'PowerSpecto_v2.png'); saveas(gcf,'PowerSpect_v2.fig')
 % % Save for the paper
-% saveas(gcf,'PowerSpecto.png', 'Resolution',300);
+% print(gcf,'PowerSpecto_paper', '-r300','-dtiff');
 
+
+%% Version 2 
+ket = {{2 1}, {1 2},  {3 2}};
+placebo = {{2 2}, {1 1},  {3 1}};
+
+figure('units','normalized','outerposition',[0 0 0.6 0.6]);
+caxis_val = [0 0.01];
+title_labs = {'Case 1: UWS', 'Case 2: MCS-', 'Case 3: MCS+'};
+for patient_i = 1:3
+    % Ketamine
+    subplot(3, 2, 2*patient_i)
+    pati = ket{patient_i}{1}; sessi = ket{patient_i}{2};
+    mat_sess = []; % matrix with all the datapoints
+    n_trials = zeros(1, 5);
+    for dosei = 1:length(dose_l)
+         load(sprintf('PK%i_S%i_exp_%s.mat',pati, sessi, dose_l{dosei}))
+         n_trials(dosei) = size(mean_spectra, 1);
+         mat_sess = [mat_sess; mean_spectra_normal];
+    end
+    imagesc(1:size(mat_sess,1), freqs, (mat_sess'));
+    set(gca,'YDir','normal')
+    colorbar();
+    %title(title_labs{patient_i})
+    caxis(caxis_val)
+    
+    % Annotate text
+    text(round(n_trials(1)/2), 40, dose_l{1}, 'Color', 'Red', 'FontSize', 15, ...
+    'HorizontalAlignment', 'Center')
+    for dosei = 1:length(dose_l)
+                text(sum(n_trials(1:dosei-1)) + round(n_trials(dosei)/2),...
+                    40, dose_l{dosei}, 'Color', 'Red', 'FontSize', 15, ...
+    'HorizontalAlignment', 'Center')
+    end
+    
+    n_trials = cumsum(n_trials);
+    for xi = 1:4
+        x = [n_trials(xi)+1 n_trials(xi)+1]; % first is 1
+        line(x,y, 'Color','red', 'LineWidth', 1.5)
+    end
+    xlabel('Trial number', 'FontSize',fontsize-4,'FontName',fontname); 
+    ylabel('Frequency (Hz)','FontSize',fontsize,'FontName',fontname);
+    
+    %Placebo
+    subplot(3, 2, 2*patient_i-1)
+    pati = placebo{patient_i}{1}; sessi = placebo{patient_i}{2};
+    mat_sess = []; % matrix with all the datapoints
+    n_trials = zeros(1, 5);
+    for dosei = 1:length(dose_l)
+         load(sprintf('PK%i_S%i_exp_%s.mat',pati, sessi, dose_l{dosei}))
+         n_trials(dosei) = size(mean_spectra, 1);
+         mat_sess = [mat_sess; mean_spectra_normal];
+    end
+    imagesc(1:size(mat_sess,1), freqs, (mat_sess'));
+    set(gca,'YDir','normal')
+    colorbar();
+    caxis(caxis_val)
+    
+    % Annotate text
+    text(round(n_trials(1)/2), 40, dose_l{1}, 'Color', 'Red', 'FontSize', 15, ...
+    'HorizontalAlignment', 'Center')
+    for dosei = 2:length(dose_l)
+                text(sum(n_trials(1:dosei-1)) + round(n_trials(dosei)/2),...
+                    40, dose_l{dosei}, 'Color', 'Red', 'FontSize', 15, ...
+    'HorizontalAlignment', 'Center')
+    end
+    
+    n_trials = cumsum(n_trials);
+    for xi = 1:4
+        x = [n_trials(xi)+1 n_trials(xi)+1]; % first is 1
+        line(x,y, 'Color','red', 'LineWidth', 1.5)
+    end
+    xlabel('Trial number', 'FontSize',fontsize-4,'FontName',fontname); 
+    ylabel(sprintf('\\bf%s\\rm  \nFrequency (Hz)', title_labs{patient_i}),'FontSize',fontsize,'FontName',fontname);%title(title_labs{patient_i}); 
+
+end
+
+% Change title of columns + rows
+hLF1 = subplot(3,2,1);
+text((max(hLF1.XLim)-min(hLF1.XLim))/2+min(hLF1.XLim),max(hLF1.YLim)+3,'Placebo','EdgeColor','none',...
+    'FontSize',fontsize+5,'FontName',fontname,'HorizontalAlignment', 'center','VerticalAlignment','Bottom', 'FontWeight', 'bold')
+
+hLF2 = subplot(3,2,2);
+text((max(hLF2.XLim)-min(hLF2.XLim))/2+min(hLF2.XLim),max(hLF2.YLim)+3,'Ketamine','EdgeColor','none',...
+    'FontSize',fontsize+5,'FontName',fontname,'HorizontalAlignment', 'center','VerticalAlignment','Bottom', 'FontWeight', 'bold')
+
+saveas(gcf,'Spectrogram.png'); saveas(gcf,'Spectrogram.fig')
+% print(gcf,'Spectrogram_paper', '-r300','-dtiff');
