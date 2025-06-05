@@ -14,7 +14,7 @@ strings = cell(size(EEG.data,1),size( EEG.data,3)); % electrode x trial
 C = zeros(size(EEG.data,1),size( EEG.data,3));
 H = cell(size(EEG.data,1),size( EEG.data,3));
 
-% Calcule - from Figure 3 (Paper 2)
+% Calculate
 for electi = 1:size( EEG.data,1)
     for triali = 1:size( EEG.data,3)
         data_binar(electi,:,triali) = abs(hilbert(EEG.data(electi,:,triali)));

@@ -23,7 +23,7 @@ if ~exist('typenalysis','var') || any(strcmp('a',typenalysis_list))
 end
 
 
-data_wd = 'C:\Users\Paolo\OneDrive - Universite de Liege\Bureau\OldComputer\D\Complexit_doc\Ketamine';
+data_wd = '...';
 for pati = patients_number
     for sessi = 1:2
         filepath = fullfile(data_wd, sprintf('PilotKET0%i\\Sess%i\\',pati, sessi));

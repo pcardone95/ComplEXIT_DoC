@@ -1,19 +1,6 @@
-%% LZC codes
-% Wanted to use a similar code to (1). On the paper, they refer to another
-% paper (2). In paper 2, looking the Figure 3, it seems already clear how
-% to structure the code.
-% References: 
-% 1. https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0242056
-% 2. https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0133532
-%
-% Using complexity code from here:
-% https://nl.mathworks.com/matlabcentral/fileexchange/38211-calc_lz_complexity
-% 
-% Written by P. Cardone (p.cardone@uliege.be)
-% Last update: 31/10/2022 (PC)
 %% Script
 % Go to the data folder
-pathwork = 'C:\Users\Paolo\OneDrive - Universite de Liege\Bureau\OldComputer\D\Complexit_doc\Ketamine';
+pathwork = '...';
 cd(pathwork)
 to_check = {};
 
@@ -50,7 +37,7 @@ for foldi = 1:size(name_fold,1)
         C = zeros(size(data,1),size(data,3));
         H = cell(size(data,1),size(data,3));
         
-        % Calcule - from Figure 3 (Paper 2)
+        % Calculate
         for electi = 1:size(data,1)
             for triali = 1:size(data,3)
                 data_binar(electi,:,triali) = abs(hilbert(data(electi,:,triali)));

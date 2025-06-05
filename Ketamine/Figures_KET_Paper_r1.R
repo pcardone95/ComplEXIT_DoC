@@ -19,15 +19,15 @@ library(ggpubr)
 library(rstatix)
 
 # Set path and file_name
-paper_path <- "C:/Users/Paolo/dox/PhD/00_Publications/Papers/Mine/Pilot_KET/results"
-data_LZC_allcon_path <- 'pilotKET_merged_R_V3_all.txt'
-data_PerCon_path <- 'pilotKET_merged_R_V4_PerConc.txt'
-data_alpha_path <-  'pilotKET_merged_R_alpha_v4.txt'
+paper_path <- "..."
+data_LZC_allcon_path <- 'pilotKET_merged_R_all.txt'
+data_PerCon_path <- 'pilotKET_merged_R_PerConc.txt'
+data_alpha_path <-  'pilotKET_merged_R_alpha.txt'
 data_ECI_path <-  'ECI_table_R_bas_full.csv'
 
   
 # 2. Lempel-Ziv Complexity ####
-setwd("C:/Users/Paolo/OneDrive - Universite de Liege/Bureau/OldComputer/D/Complexit_doc/Ketamine/results")
+setwd("...")
 data_LZC_allcon <- read.csv(data_LZC_allcon_path, header = TRUE, sep = ',')
 data_LZC_allcon[c('Subject', 'Electrode', 'Concentration', 'Session', 'Condition')] <- 
   lapply(data_LZC_allcon[c('Subject', 'Electrode', 'Concentration', 'Session', 'Condition')],as.factor)
@@ -140,7 +140,7 @@ ggsave("PaperKET_EEGresults_iScience_r1_sub.jpg", device="jpg", width=15, height
 
 
 # 5 SECONDs ####
-setwd("C:/Users/Paolo/dox/PhD/01_Psychedelics/Ketamine/Pilot/results/Tables_dataset")
+setwd("...")
 
 data_seconds <- read_excel("20230220_SECONDs_R.xlsx", 
                            col_types = c("text", "text", "text", "numeric", "text"))
@@ -214,7 +214,7 @@ aro_grid <-data_aro %>% ggplot(aes(x=Time, y=Index, shape=Diagnosis, color=Sessi
             fontface = "bold", size = 3) + guides(shape = guide_legend(title="Diagnosis at \nassessment"))
 
 # 7. MAS - Figure ####
-setwd("C:/Users/Paolo/dox/PhD/01_Psychedelics/Ketamine/Pilot/results/Tables_dataset")
+setwd("...")
 
 data_MAS <- read_excel("20230220_Database_KET_MAS.xlsx")
 data_MAS[c('Condition', 'Time', 'Side', 'Limb')] <- 
@@ -280,70 +280,11 @@ alpha_graph <- data_alpha %>% ggplot(aes(x=Concentration, y=Alpha,  color=Condit
   geom_vline(xintercept = 1.5, linetype="dashed", color = "black", size=2)
 alpha_graph + facet_grid(. ~ Subject) + guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session"))
 
-
 ggsave("PaperKET_Alpha_iScience_r1.tiff", device="tiff", width=37, height=20, units="cm", path=paper_path, dpi=300)
 
 # Correlation LZC and ECI ########
 data_ECI_temp <- data_ECI %>% filter(Concentration != 'All')
 total_EEG <- merge(data_PerCon_summarize, data_ECI_temp, by=c("Subject","Condition","Concentration"))
-
-# LZC & Awa
-cor.test(total_EEG$mean_LZC, total_EEG$ECI_Awa, method = 'spearman')
-
-# LZC & Aro
-cor.test(total_EEG$mean_LZC, total_EEG$ECI_Aro, method = 'spearman')
-
-
-LZC_Awa <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Awa", color="Condition", size=5) + 
-  stat_cor(method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Awareness') +theme(text = element_text(size = 20)) +
-  guides(colour=guide_legend(title="Session")) 
-
-LZC_Aro <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Aro", color="Condition", size=5) + 
-  stat_cor(method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Arousal') +theme(text = element_text(size = 20)) +
-  guides(colour=guide_legend(title="Session"))
-
-LZC_Awa <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Awa",  size=5) + 
-  stat_cor(method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Awareness') +theme(text = element_text(size = 20))
-
-LZC_Aro <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Aro",  size=5) + 
-  stat_cor(method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Arousal') +theme(text = element_text(size = 20)) 
-
-ggarrange(LZC_Awa, LZC_Aro, nrow=1, common.legend = TRUE,legend = "right")
-ggsave("LZC_ECI_corr.tiff", device="tiff", units="in", path=paper_path, dpi=300)
-ggsave("LZC_ECI_corr.jpg", device="jpg", units="in", path=paper_path, dpi=300)
-
-# Version 2
-
-LZC_Awa <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Awa", color="Condition", size=5) + 
-  stat_cor(aes(color=Condition), method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Awareness') +theme(text = element_text(size = 20)) +
-  guides(colour=guide_legend(title="Session"))
-
-LZC_Aro <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Aro", color="Condition", size=5) + 
-  stat_cor(aes(color=Condition),method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Arousal') +theme(text = element_text(size = 20)) +
-  guides(colour=guide_legend(title="Session"))
-
-ggarrange(LZC_Awa, LZC_Aro, nrow=1, common.legend = TRUE,legend = "right")
-ggsave("LZC_ECI_corr2.jpg", device="jpg", units="in", path=paper_path, dpi=300)
-
-# VErsion 3/4
-LZC_Awa <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Awa", color="Condition", size=5, add = 'reg.line',conf.int = TRUE) +
-  stat_cor(method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Awareness') +theme(text = element_text(size = 20)) +
-  guides(colour=guide_legend(title="Session"), fill=guide_legend(title="Session")) 
-
-LZC_Aro <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Aro", color="Condition", size=5,  add = 'reg.line', conf.int = TRUE) + 
-  stat_cor(method = "spearman", cor.coef.name='rho', p.accuracy = 0.001, size =10) +theme_bw() +
-  xlab('Whole-Brain LZC') + ylab('ECI Arousal') +theme(text = element_text(size = 20)) +
-  guides(colour=guide_legend(title="Session"))
-
-ggarrange(LZC_Awa, LZC_Aro, nrow=1, common.legend = TRUE,legend = "right")
-ggsave("LZC_ECI_corr4.jpg", device="jpg", units="in", path=paper_path, dpi=300)
 
 # Version 5
 label.y.val <-  1
@@ -360,66 +301,5 @@ LZC_Aro <- total_EEG %>% ggscatter(x = "mean_LZC", y = "ECI_Aro", color="Conditi
   geom_smooth(method = "lm", se = FALSE, colour = 'Black')
 
 ggarrange(LZC_Awa, LZC_Aro, nrow=1, common.legend = TRUE,legend = "right")
-ggsave("LZC_ECI_corr5.jpg", device="jpg", units="in", path=paper_path, dpi=300)
+ggsave("LZC_ECI_corr.jpg", device="jpg", units="in", path=paper_path, dpi=300)
 
-# Grant fig #####
-data_SECONDs_summarize <- data_seconds %>% filter(Time != 0) %>% filter(Time != 210) %>%
-  group_by(Subject, Condition) %>%
-  summarise(mean_SEC = mean(Index), sd_SEC = sd(Index))
-
-Awa_grant <- data_SECONDs_summarize %>% ggplot(aes(x=factor(Condition, level=c('Placebo', 'Ketamine')), y=mean_SEC, color=Condition,
-                                                           shape=Subject, group =interaction(Condition, Subject)))+
-  geom_point(aes(fill=Condition), size=5)+ geom_line(aes(group =Subject), color = 'black') +
-  geom_errorbar(aes(ymin=mean_SEC-sd_SEC/sqrt(2), ymax=mean_SEC+sd_SEC/sqrt(2)), width=.2) + 
-  scale_y_continuous(breaks = seq(0,8,1), limits = c(-0.1, 8.1), minor_breaks = seq(0,8,1)) +
-  xlab('') + ylab('SECONDs score') + ggtitle('Awareness')+ theme_bw() + theme(text = element_text(size = 20)) +
-  scale_shape_manual(values=c(24,22,23),breaks=c('UWS','MCS-','MCS+')) + guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session")) + theme(legend.position='none', plot.title = element_text(hjust = 0.5))
-
-
-data_aro_summarize <- data_aro %>% filter(Time != 0) %>% filter(Time != 210) %>%
-  group_by(Subject, Session) %>%
-  summarise(mean_aro = mean(Index), sd_aro = sd(Index))
-
-Aro_grant <- data_aro_summarize %>% ggplot(aes(x=factor(Session, level=c('Placebo', 'Ketamine')), y=mean_aro, color=Session,
-                                                   shape=Subject, group =interaction(Session, Subject)))+
-  geom_point(aes(fill=Session), size=5)+ geom_line(aes(group =Subject), color = 'black') +
-  geom_errorbar(aes(ymin=mean_aro-sd_aro/sqrt(2), ymax=mean_aro+sd_aro/sqrt(2)), width=.2) + 
-  scale_y_continuous(breaks = seq(0,4,1), limits = c(0.1, 4.1)) +
-  xlab('') + ylab('Time w/ EO') + ggtitle('Arousal')+ theme_bw() + theme(text = element_text(size = 20)) +
-  scale_shape_manual(values=c(24,22,23),breaks=c('UWS','MCS-','MCS+')) + 
-  guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session")) + 
-  theme(legend.position='none', plot.title = element_text(hjust = 0.5)) + 
-  scale_y_continuous(
-    breaks = c(1,2,3,4), minor_breaks = seq(1,4,1),
-    labels = c("0-25%", "25-50%", "50-75%", "75-100%")
-  )
-
-
-ggarrange(Awa_grant, Aro_grant,
-  nrow = 1,
-  labels = c('A', 'B'),
-  font.label = list(size = 28),
-  common.legend = TRUE,
-  legend = "right"
-)
-
-ggsave("FigGrant_V1.jpg", device="jpg", units="in", path=paper_path, dpi=300)
-
-LZC_grant <- data_LZC_allcon_summarize %>% ggplot(aes(x=factor(Condition, level=c('Placebo', 'Ketamine')), y=mean_LZC, color=Condition,
-                                                           shape=Subject, group =interaction(Condition, Subject)))+
-  geom_point(aes(fill=Condition), size=5)+ geom_line(aes(group =Subject), color = 'black') +
-  geom_errorbar(aes(ymin=mean_LZC-sd_LZC/sqrt(127), ymax=mean_LZC+sd_LZC/sqrt(127)), width=.2) + 
-  xlab('') + ylab('Lempel-Ziv Complexity') + ggtitle('Complexity')+ theme_bw() + theme(text = element_text(size = 20)) +
-  scale_shape_manual(values=c(24,22,23),breaks=c('UWS','MCS-','MCS+')) + guides(fill=guide_legend(title="Session"), colour=guide_legend(title="Session")) + theme(legend.position='none', plot.title = element_text(hjust = 0.5))
-
-
-ggarrange(
-  LZC_grant, Awa_grant, Aro_grant,
-  nrow = 1,
-  ncol = 3,
-  labels = c('A', 'B', 'C'),
-  font.label = list(size = 28),
-  common.legend = TRUE,
-  legend = "right"
-)
-ggsave("FigGrant_V2.jpg", device="jpg", units="in", path=paper_path, dpi=300)
